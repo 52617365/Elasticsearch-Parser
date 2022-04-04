@@ -21,10 +21,11 @@ pub fn format_pattern(format: &str) -> &str {
 
 // Gets called for each line in a file and returns a JSON String if everything goes to plan.
 pub fn parse_file(keys: &str, data: &str) -> Result<String> {
-    let mut values = Data { x: HashMap::new() };
     let parsed_keys: Vec<&str> = keys.split_whitespace().collect();
     let parsed_line: Vec<&str> = data.split(":").collect();
-
+    let mut values = Data {
+        x: HashMap::with_capacity(parsed_line.len()),
+    };
     // Parsed keys and parsed line should be the same length so we iterate over container with parsed keys length
     for key in 0..parsed_keys.len() {
         values
