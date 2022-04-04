@@ -5,6 +5,8 @@ use std::{
     path::{Path, PathBuf},
 };
 
+// Lists all text files inside of the current directory and ALL child directories in the specified path.
+// TODO: Support other file types too after testing.
 pub fn list_directories(path: &str) -> Vec<PathBuf> {
     let path = format!("{}{}", path, "/**/*.txt");
 
