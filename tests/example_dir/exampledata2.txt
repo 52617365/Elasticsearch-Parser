@@ -1,0 +1,2 @@
+[;latitude longitude temperature]
+20.2;12.3;20

@@ -24,9 +24,9 @@ mod tests {
     fn test_directory_iteration() {
         let example1 = PathBuf::from("/home/floppa/dev/rust/elastic_parser/tests/example_dir/exampledata.txt");
         let example2 = PathBuf::from("/home/floppa/dev/rust/elastic_parser/tests/example_dir/example2.txt");
-        let example3 = PathBuf::from("/home/floppa/dev/rust/elastic_parser/tests/example_dir/example3.txt");
+        let example3 = PathBuf::from("/home/floppa/dev/rust/elastic_parser/tests/example_dir/exampledata2.txt");
 
-        let expected_paths = vec![example2, example3, example1];
+        let expected_paths = vec![example2, example1, example3];
 
         let path_to_files = PathBuf::from("/home/floppa/dev/rust/elastic_parser/tests/example_dir");
         assert!(path_to_files.exists());
@@ -39,15 +39,20 @@ mod tests {
 
     #[test]
     fn test_file_iteration() -> Result<(), String> {
+        // First file path contains a ":" delimited dataset
         let file_path = PathBuf::from("/home/floppa/dev/rust/elastic_parser/tests/example_dir/exampledata.txt");
+        // Second file path contains a ";" delimited dataset
+        let file_path2 = PathBuf::from("/home/floppa/dev/rust/elastic_parser/tests/example_dir/exampledata2.txt");
         assert!(Path::new(&file_path).is_file());
+        assert!(Path::new(&file_path2).is_file());
 
         let expected_json_string = r#"{"latitude":"20.2","longitude":"12.3","temperature":"20"}"#;
 
-        let json_string = read::iterate_file_lines(&file_path).unwrap();
+        let json_string_one = read::iterate_file_lines(&file_path).unwrap();
+        let json_string_two = read::iterate_file_lines(&file_path2).unwrap();
 
 
-        if &json_string[0] == expected_json_string {
+        if &json_string_one[0] == expected_json_string  && &json_string_two[0] == expected_json_string {
             Ok(())
         }
         else {
