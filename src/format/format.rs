@@ -20,7 +20,7 @@ pub fn format_pattern(format: &str) -> &str {
 }
 
 // Gets called for each line in a file and returns a JSON String if everything goes to plan.
-pub fn line_to_json(line_format: &str, line: &str, line_delimiter: &str) -> Result<String> {
+pub fn line_to_json(line_format: &str, line: &str, line_delimiter: &str, file_name : &str) -> Result<String> {
     let format_container: Vec<&str> = line_format.split_whitespace().collect(); // Splits the format into a container.
     let parsed_line: Vec<&str> = line.split(line_delimiter).collect(); // Splits the line with the specified delimiter.
 
@@ -33,6 +33,7 @@ pub fn line_to_json(line_format: &str, line: &str, line_delimiter: &str) -> Resu
             .x
             .insert(format_container[key].to_owned(), parsed_line[key].to_owned());
     }
+    values.x.insert("filename".to_owned(), file_name.to_owned());
 
     // Using serde json here to turn the hashmap into a json string.
     let serialized = serde_json::to_string(&values.x)?;

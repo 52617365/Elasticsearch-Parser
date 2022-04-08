@@ -34,7 +34,6 @@ mod tests {
         let list_paths = read::list_directories("/home/floppa/dev/rust/elastic_parser/tests/example_dir");
 
         assert_eq!(expected_paths, list_paths);
-        println!("{:?}{:?}", expected_paths, list_paths);
     }
 
     #[test]
@@ -46,13 +45,20 @@ mod tests {
         assert!(Path::new(&file_path).is_file());
         assert!(Path::new(&file_path2).is_file());
 
-        let expected_json_string = r#"{"latitude":"20.2","longitude":"12.3","temperature":"20"}"#;
+        let expected_json_string_one = r#"{"filename":"exampledata.txt","latitude":"20.2","longitude":"12.3","temperature":"20"}"#;
+        let expected_json_string_two = r#"{"filename":"exampledata2.txt","latitude":"20.2","longitude":"12.3","temperature":"20"}"#;
 
-        let json_string_one = read::iterate_file_lines(&file_path).unwrap();
-        let json_string_two = read::iterate_file_lines(&file_path2).unwrap();
+        let filename_one_to_string = file_path.to_string_lossy();
+        let filename_two_to_string = file_path2.to_string_lossy();
 
+        let json_string_one = read::iterate_file_lines(&filename_one_to_string).unwrap();
+        let json_string_two = read::iterate_file_lines(&filename_two_to_string).unwrap();
 
-        if &json_string_one[0] == expected_json_string  && &json_string_two[0] == expected_json_string {
+        println!("{}", json_string_one[0]);
+        println!();
+        println!("{}", json_string_two[0]);
+
+        if &json_string_one[0] == expected_json_string_one  && &json_string_two[0] == expected_json_string_two {
             Ok(())
         }
         else {
