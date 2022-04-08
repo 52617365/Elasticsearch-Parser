@@ -20,6 +20,7 @@ pub fn list_directories(path: &str) -> Vec<PathBuf> {
             Err(_) => (),
         }
     }
+    println!("{:?}", directories);
     directories
 }
 
@@ -50,7 +51,7 @@ pub fn iterate_directory_files(files : Vec<PathBuf>) -> io::Result<()> {
 }
 
 
-fn iterate_file_lines(file : &PathBuf) -> io::Result<Vec<String>> {
+pub fn iterate_file_lines(file : &PathBuf) -> io::Result<Vec<String>> {
        let lines = read_file_into_lines(file)?; // Get lines from a file and if it fails to do so, skip to the next file.
 
        let file_format = format_pattern(&lines[0]);

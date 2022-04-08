@@ -1,11 +1,11 @@
 use regex::Regex;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::value};
 use serde_json::Result;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Data {
-    pub x: HashMap<String, String>,
+    pub x: BTreeMap<String, String>,
 }
 
 // Reads first line containing format.
@@ -25,7 +25,7 @@ pub fn line_to_json(line_format: &str, line: &str, line_delimiter: &str) -> Resu
     let parsed_line: Vec<&str> = line.split(line_delimiter).collect(); // Splits the line with the specified delimiter.
 
     let mut values = Data {
-        x: HashMap::with_capacity(parsed_line.len()),
+        x: BTreeMap::new(),
     };
     // Parsed keys and parsed line should be the same length so we iterate over container with parsed keys length
     for key in 0..format_container.len() {

@@ -12,7 +12,6 @@ pub fn write_json_strings_to_file(file_name : &PathBuf, json_strings : Vec<Strin
 }
 
 pub fn write_logs_to_file(message : &str, file_handle : &mut File) -> std::io::Result<()>{
-    let f = File::options().append(true).open("example.log")?;
     writeln!(file_handle, "{}", message)?;
     Ok(())
 }
