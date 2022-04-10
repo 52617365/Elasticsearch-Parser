@@ -5,6 +5,7 @@ mod write;
 mod tests {
     use std::path::Path;
     use crate::read::read;
+    use glob::glob;
 
     #[test]
     fn test_regex() {
@@ -20,40 +21,53 @@ mod tests {
     }
 
     #[test]
+    fn test_files_exist() {
+        let example1 = Path::new("tests/example_dir/exampledata/exampledata.txt");
+        let example2 = Path::new("tests/example_dir/exampledata2/exampledata2.txt");
+        let example3 = Path::new("tests/example_dir/example2/example2.txt");
+
+        assert!(example1.exists());
+        assert!(example2.exists());
+        assert!(example3.exists());
+    }
+
+    #[test]
     fn test_directory_iteration() {
-        let example1 = Path::new("tests/example_dir/exampledata.txt");
-        let example2 = Path::new("tests/example_dir/exampledata2.txt");
-        let example3 = Path::new("tests/example_dir/example2.txt");
+        let example1 = Path::new("tests/example_dir/exampledata/exampledata.txt");
+        let example2 = Path::new("tests/example_dir/exampledata2/exampledata2.txt");
+        let example3 = Path::new("tests/example_dir/example2/example2.txt");
 
         let expected_paths = vec![example3, example1, example2];
 
-        println!("expected paths are {:?}", expected_paths);
         let path_to_files = Path::new("./tests/example_dir");
         assert!(path_to_files.exists());
+        let path: String =String::from(path_to_files.to_string_lossy());
 
-        let list_paths = read::list_directories("./tests/example_dir");
+        let list_paths = read::list_directories(&path);
 
-        println!("paths are {:?}", list_paths);
+        println!("got {:?}", list_paths);
+        println!("expected {:?}", expected_paths);
+
         assert_eq!(expected_paths, list_paths);
     }
 
     #[test]
     fn test_file_iteration() -> Result<(), String> {
         // First file path contains a ":" delimited dataset
-        let file_path = Path::new("tests/example_dir/exampledata.txt");
+        let file_path = Path::new("./tests/example_dir/exampledata/exampledata.txt");
         // Second file path contains a ";" delimited dataset
-        let file_path2 = Path::new("tests/example_dir/exampledata2.txt");
+        let file_path2 = Path::new("./tests/example_dir/exampledata2/exampledata2.txt");
         assert!(Path::new(&file_path).is_file());
         assert!(Path::new(&file_path2).is_file());
 
         let expected_json_string_one = r#"{"filename":"exampledata.txt","latitude":"20.2","longitude":"12.3","temperature":"20"}"#;
         let expected_json_string_two = r#"{"filename":"exampledata2.txt","latitude":"20.2","longitude":"12.3","temperature":"20"}"#;
 
-        let filename_one_to_string = file_path.to_string_lossy();
-        let filename_two_to_string = file_path2.to_string_lossy();
+        let json_string_one = read::iterate_file_lines(&file_path).unwrap();
+        let json_string_two = read::iterate_file_lines(&file_path2).unwrap();
 
-        let json_string_one = read::iterate_file_lines(&filename_one_to_string).unwrap();
-        let json_string_two = read::iterate_file_lines(&filename_two_to_string).unwrap();
+        println!("expected {}", expected_json_string_one);
+        println!("got {:?}", json_string_one);
 
         if &json_string_one[0] == expected_json_string_one && &json_string_two[0] == expected_json_string_two {
             Ok(())

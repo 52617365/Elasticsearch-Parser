@@ -11,10 +11,10 @@ use crate::write::write::write_json_strings_to_file;
 // Lists all text files inside of the current directory and ALL child directories in the specified path.
 // TODO: Support other file types too after testing.
 pub fn list_directories(path: &str) -> Vec<PathBuf> {
-    let path = format!("{}{}", path, "/**/*.txt");
+    let complete_path = format!("{}{}",path, "/**/*.txt");
 
     let mut directories: Vec<PathBuf> = Vec::with_capacity(3000);
-    for entry in glob(&path).expect("Error listing text files") {
+    for entry in glob(&complete_path).expect("Error listing text files") {
         match entry {
             Ok(path) => directories.push(path),
             Err(_) => (),
@@ -23,10 +23,9 @@ pub fn list_directories(path: &str) -> Vec<PathBuf> {
     directories
 }
 
-pub fn iterate_directory_files(files : Vec<PathBuf>) -> io::Result<()> {
+pub fn iterate_directory_files_and_convert(files : Vec<PathBuf>) -> io::Result<()> {
     for file in files.iter() {
-    let filepath_str = file.to_string_lossy();
-      let serialized_lines = iterate_file_lines(&filepath_str);
+      let serialized_lines = iterate_file_lines(&file);
       // Lines are json strings at this point.
       let serialized_lines = match serialized_lines {
           Ok(lines) => lines,
@@ -48,7 +47,7 @@ pub fn iterate_directory_files(files : Vec<PathBuf>) -> io::Result<()> {
     Ok(())
 }
 
-pub fn iterate_file_lines(file : &str) -> io::Result<Vec<String>> {
+pub fn iterate_file_lines(file : &Path) -> io::Result<Vec<String>> {
        let lines = read_file_into_lines(file)?; // Get lines from a file and if it fails to do so, skip to the next file.
 
        let file_format = format_pattern(&lines[0]);
@@ -62,9 +61,9 @@ pub fn iterate_file_lines(file : &str) -> io::Result<Vec<String>> {
 
        // Some sort of format is guaranteed here.
        let mut serialized_lines : Vec<String> = Vec::with_capacity(lines.len());
-       let file_name = Path::new(&file).file_name().unwrap().to_string_lossy();
+       let file_name = Path::new(&file).file_name().unwrap();
        for line in lines[1..].iter() {
-            let serialized_line = line_to_json(line_format, line, line_delimiter, &file_name);
+            let serialized_line = line_to_json(line_format, line, line_delimiter, &file_name.to_string_lossy());
 
             // Add line into json string container if serializing did not fail, else do nothing.
             let _ = match serialized_line {
