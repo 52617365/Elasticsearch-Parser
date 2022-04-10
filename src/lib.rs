@@ -3,9 +3,11 @@ mod read;
 mod write;
 #[cfg(test)]
 mod tests {
-    use std::path::Path;
+use std::{
+    io::{self, BufRead, BufReader},
+    path::Path,
+    };
     use crate::read::read;
-    use glob::glob;
 
     #[test]
     fn test_regex() {
@@ -43,7 +45,7 @@ mod tests {
         assert!(path_to_files.exists());
         let path: String =String::from(path_to_files.to_string_lossy());
 
-        let list_paths = read::list_directories(&path);
+        let list_paths = read::list_directories(&path).expect("Could not find any directories");
 
         println!("got {:?}", list_paths);
         println!("expected {:?}", expected_paths);
@@ -75,5 +77,16 @@ mod tests {
         else {
             Err(String::from("There was an error with serializing lines"))
         }
+    }
+
+    #[test]
+    fn test_file_reading() -> io::Result<()> {
+       let file = Path::new("./tests/example_dir/exampledata/exampledata.txt");
+       let lines = read::read_file_into_lines(file)?; // Get lines from a file and if it fails to do so, skip to the next file.
+
+       let expected_file_contents = vec!["[:latitude longitude temperature]","20.2:12.3:20"];
+
+        assert_eq!(expected_file_contents, lines);
+        Ok(())
     }
 }
