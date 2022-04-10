@@ -2,15 +2,21 @@ mod format;
 mod read;
 mod write;
 use std::io;
-use crate::format::format::format_pattern;
-use crate::format::format::line_to_json;
+use std::path::Path;
+use std::env;
 use crate::read::read::list_directories;
-use crate::read::read::iterate_file_lines;
+use crate::read::read::start_iterating_files;
 
 fn main() -> io::Result<()>{
-    let dirs = list_directories("/home/floppa/dev/rust/elastic_parser/tests/example_dir");
+ env::set_var("RUST_BACKTRACE", "1");
+    //cultcraft.me_9.4k.txt
+    let path_to_files = Path::new("../data/unparsed_data/");
 
-
-
+    println!("{:?}", path_to_files);
+    let files = match list_directories(&path_to_files.to_string_lossy()) {
+        Some(files) => files,
+        None => panic!("No files found."),
+    };
+    let _ = start_iterating_files(files);
     Ok(())
 }
