@@ -1,4 +1,4 @@
-use std::fs::{File, self};
+use std::fs::File;
 use std::path::PathBuf;
 use std::io::prelude::*;
 
@@ -11,6 +11,7 @@ pub fn write_json_strings_to_file(file_name : &PathBuf, json_strings : Vec<Strin
     Ok(())
 }
 
+#[allow(dead_code)]
 pub fn write_logs_to_file(message : &str, file_handle : &mut File) -> std::io::Result<()>{
     writeln!(file_handle, "{}", message)?;
     Ok(())

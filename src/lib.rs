@@ -1,12 +1,11 @@
 mod format;
 mod read;
 mod write;
+#[cfg(test)]
 mod tests {
-    use std::{path::Path, io};
-    use std::path::{PathBuf, self};
+    use std::path::Path;
     use crate::read::read;
 
-    #[cfg(test)]
     #[test]
     fn test_regex() {
         use crate::format::format;
@@ -22,26 +21,28 @@ mod tests {
 
     #[test]
     fn test_directory_iteration() {
-        let example1 = PathBuf::from("/home/floppa/dev/rust/elastic_parser/tests/example_dir/exampledata.txt");
-        let example2 = PathBuf::from("/home/floppa/dev/rust/elastic_parser/tests/example_dir/example2.txt");
-        let example3 = PathBuf::from("/home/floppa/dev/rust/elastic_parser/tests/example_dir/exampledata2.txt");
+        let example1 = Path::new("tests/example_dir/exampledata.txt");
+        let example2 = Path::new("tests/example_dir/exampledata2.txt");
+        let example3 = Path::new("tests/example_dir/example2.txt");
 
-        let expected_paths = vec![example2, example1, example3];
+        let expected_paths = vec![example3, example1, example2];
 
-        let path_to_files = PathBuf::from("/home/floppa/dev/rust/elastic_parser/tests/example_dir");
+        println!("expected paths are {:?}", expected_paths);
+        let path_to_files = Path::new("./tests/example_dir");
         assert!(path_to_files.exists());
 
-        let list_paths = read::list_directories("/home/floppa/dev/rust/elastic_parser/tests/example_dir");
+        let list_paths = read::list_directories("./tests/example_dir");
 
+        println!("paths are {:?}", list_paths);
         assert_eq!(expected_paths, list_paths);
     }
 
     #[test]
     fn test_file_iteration() -> Result<(), String> {
         // First file path contains a ":" delimited dataset
-        let file_path = PathBuf::from("/home/floppa/dev/rust/elastic_parser/tests/example_dir/exampledata.txt");
+        let file_path = Path::new("tests/example_dir/exampledata.txt");
         // Second file path contains a ";" delimited dataset
-        let file_path2 = PathBuf::from("/home/floppa/dev/rust/elastic_parser/tests/example_dir/exampledata2.txt");
+        let file_path2 = Path::new("tests/example_dir/exampledata2.txt");
         assert!(Path::new(&file_path).is_file());
         assert!(Path::new(&file_path2).is_file());
 
@@ -54,16 +55,11 @@ mod tests {
         let json_string_one = read::iterate_file_lines(&filename_one_to_string).unwrap();
         let json_string_two = read::iterate_file_lines(&filename_two_to_string).unwrap();
 
-        println!("{}", json_string_one[0]);
-        println!();
-        println!("{}", json_string_two[0]);
-
-        if &json_string_one[0] == expected_json_string_one  && &json_string_two[0] == expected_json_string_two {
+        if &json_string_one[0] == expected_json_string_one && &json_string_two[0] == expected_json_string_two {
             Ok(())
         }
         else {
             Err(String::from("There was an error with serializing lines"))
         }
     }
-
 }

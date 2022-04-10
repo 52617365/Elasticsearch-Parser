@@ -2,15 +2,15 @@ mod format;
 mod read;
 mod write;
 use std::io;
-use crate::format::format::format_pattern;
-use crate::format::format::line_to_json;
+use std::path::Path;
 use crate::read::read::list_directories;
-use crate::read::read::iterate_file_lines;
+use crate::read::read::iterate_directory_files;
 
 fn main() -> io::Result<()>{
-    let dirs = list_directories("/home/floppa/dev/rust/elastic_parser/tests/example_dir");
+    let relative_path = Path::new("./data/unparsed_data").to_string_lossy();
 
-
-
+    let files = list_directories(&relative_path);
+    println!("{:?}", files);
+    let _x = iterate_directory_files(files);
     Ok(())
 }
