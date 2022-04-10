@@ -1,11 +1,12 @@
 use regex::Regex;
 use serde::{Deserialize, Serialize};
+use std::iter::zip;
 use serde_json::Result;
 use std::collections::BTreeMap;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Data {
-    pub x: BTreeMap<String, String>,
+    pub x: BTreeMap<String,String>,
 }
 
 // Reads first line containing format.
@@ -28,14 +29,14 @@ pub fn line_to_json(line_format: &str, line: &str, line_delimiter: &str, file_na
         x: BTreeMap::new(),
     };
     // Parsed keys and parsed line should be the same length so we iterate over container with parsed keys length
-    for key in 0..format_container.len() {
-        values
-            .x
-            .insert(format_container[key].to_owned(), parsed_line[key].to_owned());
+
+    for index in 0..parsed_line.len() {
+        values.x.insert(format_container[index].to_string(), parsed_line[index].to_owned());
+        values.x.insert("filename".to_owned(), file_name.to_owned());
     }
-    values.x.insert("filename".to_owned(), file_name.to_owned());
 
     // Using serde json here to turn the hashmap into a json string.
+
     let serialized = serde_json::to_string(&values.x)?;
     Ok(serialized)
 }
