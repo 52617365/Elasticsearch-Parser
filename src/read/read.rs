@@ -33,7 +33,6 @@ pub fn start_iterating_files(files: Vec<PathBuf>) -> io::Result<()> {
             Ok(result) => result,
             Err(_) => continue,
         };
-        println!("{}", file.display());
         write_json_strings_to_file(file, serialized_strings)?;
     }
     Ok(())

@@ -35,14 +35,17 @@ pub fn lines_to_json(
         let parsed_line: Vec<&str> = line.split(line_delimiter).collect(); // Splits the line with the specified delimiter.
 
         let format_container: Vec<&str> = line_format.split_whitespace().collect(); // Splits the format into a container.
-                                                                                    // Add line into json string container if serializing did not fail, else do nothing.
+
+        // Add line into json string container if serializing did not fail, else do nothing.
 
         for index in 0..format_container.len() {
             values.x.insert(
                 format_container[index].to_string(),
-                parsed_line[index].to_owned(),
+                parsed_line[index].to_string(),
             );
-            values.x.insert("filename".to_owned(), file_name.to_owned());
+            values
+                .x
+                .insert("filename".to_string(), file_name.to_string());
         }
 
         let serialized_line = serde_json::to_string(&values.x)?;

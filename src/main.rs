@@ -8,7 +8,7 @@ use std::io;
 use std::path::Path;
 
 fn main() -> io::Result<()> {
-    env::set_var("RUST_BACKTRACE", "1");
+    env::set_var("RUST_BACKTRACE", "FULL");
     //cultcraft.me_9.4k.txt
     let path_to_files = Path::new("../data/unparsed_data/");
 
