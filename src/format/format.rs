@@ -1,12 +1,12 @@
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::iter::zip;
 use serde_json::Result;
 use std::collections::BTreeMap;
+use std::iter::zip;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Data {
-    pub x: BTreeMap<String,String>,
+    pub x: BTreeMap<String, String>,
 }
 
 // Reads first line containing format.
@@ -21,23 +21,34 @@ pub fn format_pattern(format: &str) -> &str {
 }
 
 // Gets called for each line in a file and returns a JSON String if everything goes to plan.
-pub fn line_to_json(line_format: &str, line: &str, line_delimiter: &str, file_name : &str) -> Result<String> {
-    let format_container: Vec<&str> = line_format.split_whitespace().collect(); // Splits the format into a container.
-    let parsed_line: Vec<&str> = line.split(line_delimiter).collect(); // Splits the line with the specified delimiter.
+pub fn lines_to_json(
+    line_format: &str,
+    lines: &Vec<String>,
+    line_delimiter: &str,
+    file_name: &str,
+) -> Result<Vec<String>> {
+    let mut serialized_lines: Vec<String> = Vec::with_capacity(lines.len());
 
-    let mut values = Data {
-        x: BTreeMap::new(),
-    };
+    for line in lines[1..].iter() {
+        let mut values = Data { x: BTreeMap::new() };
+
+        let parsed_line: Vec<&str> = line.split(line_delimiter).collect(); // Splits the line with the specified delimiter.
+
+        let format_container: Vec<&str> = line_format.split_whitespace().collect(); // Splits the format into a container.
+                                                                                    // Add line into json string container if serializing did not fail, else do nothing.
+
+        for index in 0..format_container.len() {
+            values.x.insert(
+                format_container[index].to_string(),
+                parsed_line[index].to_owned(),
+            );
+            values.x.insert("filename".to_owned(), file_name.to_owned());
+        }
+
+        let serialized_line = serde_json::to_string(&values.x)?;
+        serialized_lines.push(serialized_line);
+    }
     // Parsed keys and parsed line should be the same length so we iterate over container with parsed keys length
 
-    for index in 0..parsed_line.len() {
-        values.x.insert(format_container[index].to_string(), parsed_line[index].to_owned());
-        values.x.insert("filename".to_owned(), file_name.to_owned());
-    }
-
-    // Using serde json here to turn the hashmap into a json string.
-
-    let serialized = serde_json::to_string(&values.x)?;
-    Ok(serialized)
+    Ok(serialized_lines)
 }
-
