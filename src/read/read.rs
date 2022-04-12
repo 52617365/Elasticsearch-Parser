@@ -1,17 +1,19 @@
+use crate::format::format::format_pattern;
+use crate::format::format::lines_to_json;
+use crate::write::write::write_json_strings_to_file;
 use glob::glob;
 use std::{
     fs::File,
     io::{self, BufRead, BufReader},
     path::{Path, PathBuf},
-    };
-use crate::format::format::format_pattern;
-use crate::format::format::line_to_json;
-use crate::write::write::write_json_strings_to_file;
+};
 
 // Lists all text files inside of the current directory and ALL child directories in the specified path.
 // TODO: Support other file types too after testing.
 pub fn list_directories(path: &str) -> Option<Vec<PathBuf>> {
-    if !Path::new(path).exists() {return None;}
+    if !Path::new(path).exists() {
+        return None;
+    }
 
     let complete_path = format!("{}{}", path, "/**/*.txt");
 
@@ -25,41 +27,40 @@ pub fn list_directories(path: &str) -> Option<Vec<PathBuf>> {
     Some(directories)
 }
 
-pub fn start_iterating_files(files : Vec<PathBuf>) -> io::Result<()>{
+pub fn start_iterating_files(files: Vec<PathBuf>) -> io::Result<()> {
     for file in files.iter() {
         let serialized_strings = match iterate_file_lines(file) {
             Ok(result) => result,
             Err(_) => continue,
         };
-        println!("{}", file.display());
         write_json_strings_to_file(file, serialized_strings)?;
     }
     Ok(())
 }
 
-pub fn iterate_file_lines(file : &Path) -> io::Result<Vec<String>> {
-    let lines = read_file_into_lines(file)?;
+pub fn iterate_file_lines(file: &Path) -> io::Result<Vec<String>> {
+    let lines: Vec<String> = read_file_into_lines(file)?;
 
     let file_format = format_pattern(&lines[0]);
 
-    let (line_delimiter, line_format) = get_delimiter_and_format_from_file(file_format); // First line contains the format and delimiter so we run it through regex.
+    if !file_format.is_empty() {
+        let (line_delimiter, line_format) = get_delimiter_and_format_from_file(file_format); // First line contains the format and delimiter so we run it through regex.
 
-    // Some sort of format is guaranteed here.
-    let mut serialized_lines : Vec<String> = Vec::with_capacity(lines.len());
+        // We want to store file name in the data so we get it here.
+        let file_name = Path::new(&file)
+            .file_name()
+            .expect("Error getting file name")
+            .to_string_lossy();
 
-    // We want to store file name in the data so we get it here.
-    let file_name = Path::new(&file).file_name().expect("Error getting file name").to_string_lossy();
+        let serialized_lines = lines_to_json(line_format, &lines, &line_delimiter, &file_name)?;
 
-    for line in lines[1..].iter() {
-         let serialized_line = line_to_json(line_format, line, line_delimiter, &file_name);
-
-         // Add line into json string container if serializing did not fail, else do nothing.
-         let _ = match serialized_line {
-             Ok(line) => serialized_lines.push(line),
-             Err(_) => (),
-         };
+        Ok(serialized_lines)
+    } else {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            "Error reading file",
+        ));
     }
-    Ok(serialized_lines)
 }
 
 pub fn read_file_into_lines(filename: impl AsRef<Path>) -> io::Result<Vec<String>> {
@@ -67,7 +68,7 @@ pub fn read_file_into_lines(filename: impl AsRef<Path>) -> io::Result<Vec<String
 }
 
 fn get_delimiter_and_format_from_file(parsed_line: &str) -> (&str, &str) {
-           let file_delimiter = &parsed_line[0..1]; // After regex the first index of the string is the delimiter.
-           let file_format = &parsed_line[1..]; // The rest is the actual format.
-           (file_delimiter, file_format)
+    let file_delimiter = &parsed_line[0..1]; // After regex the first index of the string is the delimiter.
+    let file_format = &parsed_line[1..]; // The rest is the actual format.
+    (file_delimiter, file_format)
 }
