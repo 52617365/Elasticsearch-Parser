@@ -10,21 +10,62 @@ use std::{
 
 // Lists all text files inside of the current directory and ALL child directories in the specified path.
 // TODO: Support other file types too after testing.
-pub fn list_directories(path: &str) -> Option<Vec<PathBuf>> {
+
+pub fn list_parsed_directory(path: &str) -> Vec<PathBuf> {
+    let complete_path = format!("{}{}", path, "/**/*.txt");
+
+    // TODO: Add a check to see if file is in the parsed dirctory already.
+
+    let mut parsed_directories: Vec<PathBuf> = Vec::with_capacity(5);
+    for entry in glob(&complete_path).expect("Error listing text files") {
+        match entry {
+            Ok(path) => parsed_directories.push(path),
+            Err(_) => (),
+        }
+    }
+    parsed_directories
+}
+
+pub fn list_unparsed_directory(path: &str) -> Option<Vec<PathBuf>> {
     if !Path::new(path).exists() {
         return None;
     }
 
     let complete_path = format!("{}{}", path, "/**/*.txt");
 
-    let mut directories: Vec<PathBuf> = Vec::with_capacity(5);
+    // TODO: Add a check to see if file is in the parsed dirctory already.
+
+    let mut unparsed_directories: Vec<PathBuf> = Vec::with_capacity(50);
     for entry in glob(&complete_path).expect("Error listing text files") {
         match entry {
-            Ok(path) => directories.push(path),
+            Ok(path) => unparsed_directories.push(path),
             Err(_) => (),
         }
     }
-    Some(directories)
+    Some(unparsed_directories)
+}
+
+pub fn list_directories(unparsed_path: &str, parsed_path: &str) -> Option<Vec<PathBuf>> {
+    let unparsed_files = match list_unparsed_directory(unparsed_path) {
+        Some(dirs) => dirs,
+        None => panic!("Folder did not contain any unparsed files."),
+    };
+    let parsed_files = list_parsed_directory(parsed_path);
+
+    let mut directories: Vec<PathBuf> = Vec::with_capacity(50);
+
+    // Get the files that are not already parsed.
+    for file in unparsed_files.iter() {
+        if !parsed_files.contains(&file) {
+            directories.push(file.to_path_buf());
+        }
+    }
+    // Check if there are any files left to parse
+    if directories.len() == 0 {
+        return None;
+    } else {
+        return Some(directories);
+    }
 }
 
 pub fn start_iterating_files(files: Vec<PathBuf>) -> io::Result<()> {
