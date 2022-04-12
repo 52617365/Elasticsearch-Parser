@@ -39,20 +39,28 @@ pub fn start_iterating_files(files: Vec<PathBuf>) -> io::Result<()> {
 }
 
 pub fn iterate_file_lines(file: &Path) -> io::Result<Vec<String>> {
-    let lines = read_file_into_lines(file)?;
+    let lines: Vec<String> = read_file_into_lines(file)?;
 
     let file_format = format_pattern(&lines[0]);
 
-    let (line_delimiter, line_format) = get_delimiter_and_format_from_file(file_format); // First line contains the format and delimiter so we run it through regex.
+    if !file_format.is_empty() {
+        let (line_delimiter, line_format) = get_delimiter_and_format_from_file(file_format); // First line contains the format and delimiter so we run it through regex.
 
-    // We want to store file name in the data so we get it here.
-    let file_name = Path::new(&file)
-        .file_name()
-        .expect("Error getting file name")
-        .to_string_lossy();
+        // We want to store file name in the data so we get it here.
+        let file_name = Path::new(&file)
+            .file_name()
+            .expect("Error getting file name")
+            .to_string_lossy();
 
-    let serialized_lines = lines_to_json(line_format, &lines, &line_delimiter, &file_name)?;
-    Ok(serialized_lines)
+        let serialized_lines = lines_to_json(line_format, &lines, &line_delimiter, &file_name)?;
+
+        Ok(serialized_lines)
+    } else {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            "Error reading file",
+        ));
+    }
 }
 
 pub fn read_file_into_lines(filename: impl AsRef<Path>) -> io::Result<Vec<String>> {
