@@ -9,49 +9,51 @@ use std::{
 };
 
 // Lists all text files inside of the current directory and ALL child directories in the specified path.
-// TODO: Support other file types too after testing.
-
-pub fn list_files(path: &str) -> Vec<PathBuf> {
-    let mut unparsed_directories: Vec<PathBuf> = Vec::with_capacity(50);
-    if Path::new(path).exists() {
+pub fn list_files(path: &str) -> Vec<String> {
+    let mut unparsed_directories: Vec<String> = Vec::with_capacity(50);
+    if Path::new(&path).exists() {
         let complete_path = format!("{}{}", path, "/**/*.txt");
         for entry in glob(&complete_path).expect("Error listing text files") {
             match entry {
-                Ok(path) => unparsed_directories.push(path),
+                Ok(path) => unparsed_directories.push(path.to_string_lossy().to_string()),
                 Err(_) => (),
             }
         }
     }
     unparsed_directories
 }
-pub fn list_unparsed_files(unparsed_path: &str, parsed_path: &str) -> Option<Vec<PathBuf>> {
+// Function checks all parsed and unparsed files and extracts the ones that are not yet parsed.
+pub fn list_unparsed_files(unparsed_path: &str, parsed_path: &str) -> Option<Vec<String>> {
     let unparsed_files = list_files(unparsed_path);
-
     let parsed_files = list_files(parsed_path);
 
-    let mut directories: Vec<PathBuf> = Vec::with_capacity(unparsed_path.len());
+    let mut extracted_files = Vec::with_capacity(unparsed_files.len());
 
-    // Get the files that are not already parsed.
-    for file in unparsed_files.iter() {
-        if !parsed_files.contains(&file) {
-            directories.push(file.to_path_buf());
+    for unparsed_file in unparsed_files.iter() {
+        let filename = Path::new(unparsed_file).file_name()?;
+        if !parsed_files.iter().any(|parsed_file| {
+            parsed_file.contains(filename.to_str().expect("Error parsing filename"))
+        }) {
+            extracted_files.push(unparsed_file.to_string());
         }
     }
+
     // Check if there are any files left to parse
-    if directories.len() == 0 {
+    if extracted_files.is_empty() {
         return None;
     } else {
-        return Some(directories);
+        return Some(extracted_files);
     }
 }
 
-pub fn start_iterating_files(files: Vec<PathBuf>) -> io::Result<()> {
+pub fn start_iterating_files(files: Vec<String>) -> io::Result<()> {
     for file in files.iter() {
-        let serialized_strings = match iterate_file_lines(file) {
+        let file_path = PathBuf::from(file);
+        let serialized_strings = match iterate_file_lines(&file_path) {
             Ok(result) => result,
             Err(_) => continue,
         };
-        write_json_strings_to_file(file, serialized_strings)?;
+        write_json_strings_to_file(&file_path, serialized_strings)?;
     }
     Ok(())
 }
