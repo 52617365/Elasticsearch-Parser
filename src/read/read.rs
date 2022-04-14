@@ -10,21 +10,39 @@ use std::{
 
 // Lists all text files inside of the current directory and ALL child directories in the specified path.
 // TODO: Support other file types too after testing.
-pub fn list_directories(path: &str) -> Option<Vec<PathBuf>> {
-    if !Path::new(path).exists() {
-        return None;
-    }
 
-    let complete_path = format!("{}{}", path, "/**/*.txt");
-
-    let mut directories: Vec<PathBuf> = Vec::with_capacity(5);
-    for entry in glob(&complete_path).expect("Error listing text files") {
-        match entry {
-            Ok(path) => directories.push(path),
-            Err(_) => (),
+pub fn list_files(path: &str) -> Vec<PathBuf> {
+    let mut unparsed_directories: Vec<PathBuf> = Vec::with_capacity(50);
+    if Path::new(path).exists() {
+        let complete_path = format!("{}{}", path, "/**/*.txt");
+        for entry in glob(&complete_path).expect("Error listing text files") {
+            match entry {
+                Ok(path) => unparsed_directories.push(path),
+                Err(_) => (),
+            }
         }
     }
-    Some(directories)
+    unparsed_directories
+}
+pub fn list_unparsed_files(unparsed_path: &str, parsed_path: &str) -> Option<Vec<PathBuf>> {
+    let unparsed_files = list_files(unparsed_path);
+
+    let parsed_files = list_files(parsed_path);
+
+    let mut directories: Vec<PathBuf> = Vec::with_capacity(unparsed_path.len());
+
+    // Get the files that are not already parsed.
+    for file in unparsed_files.iter() {
+        if !parsed_files.contains(&file) {
+            directories.push(file.to_path_buf());
+        }
+    }
+    // Check if there are any files left to parse
+    if directories.len() == 0 {
+        return None;
+    } else {
+        return Some(directories);
+    }
 }
 
 pub fn start_iterating_files(files: Vec<PathBuf>) -> io::Result<()> {
