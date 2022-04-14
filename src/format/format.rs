@@ -2,7 +2,6 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 use std::collections::BTreeMap;
-use std::iter::zip;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Data {
@@ -12,6 +11,7 @@ pub struct Data {
 // Reads first line containing format.
 // We use regex because we don't want to run into situations where the program mistakes a random line as a format when it's not.
 // If file does not contain a format we return an empty string.
+#[allow(dead_code)]
 pub fn format_pattern(format: &str) -> &str {
     let re = Regex::new(r"\[([^]]+)\]").unwrap();
     match re.captures(format) {

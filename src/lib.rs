@@ -13,11 +13,11 @@ mod tests {
     fn test_regex() {
         use crate::format::format;
 
-        let expected_unparsed_string = "[:Latitude Longitude Coordinates]";
+        let expected_unparsed_string = "[:latitude longitude coordinates]";
 
         let regex_string = format::format_pattern(expected_unparsed_string);
 
-        let expected_string = ":Latitude Longitude Coordinates";
+        let expected_string = ":latitude longitude coordinates";
 
         assert_eq!(regex_string, expected_string);
     }
@@ -41,11 +41,16 @@ mod tests {
 
         let expected_paths = vec![example3, example1, example2];
 
-        let path_to_files = Path::new("./tests/example_dir");
-        assert!(path_to_files.exists());
-        let path: String = String::from(path_to_files.to_string_lossy());
+        let path = Path::new("./tests/example_dir");
+        //      let path_to_unparsed_files = Path::new("./tests/unparsed_dir");
+        //     let path_to_parsed_files = Path::new("./tests/parsed_dir");
+        assert!(path.exists());
 
-        let list_paths = read::list_directories(&path).expect("Could not find any directories");
+        //        let path_to_unparsed_files: String = String::from(path_to_unparsed_files.to_string_lossy());
+        //       let path_to_parsed_files: String = String::from(path_to_parsed_files.to_string_lossy());
+        let path: String = String::from(path.to_string_lossy());
+
+        let list_paths = read::list_files(&path);
 
         println!("got {:?}", list_paths);
         println!("expected {:?}", expected_paths);
@@ -85,8 +90,17 @@ mod tests {
         let file = Path::new("./tests/example_dir/exampledata/exampledata.txt");
         let lines = read::read_file_into_lines(file)?; // Get lines from a file and if it fails to do so, skip to the next file.
 
-        let expected_file_contents = vec!["[:latitude longitude temperature]", "20.2:12.3:20"];
+        let expected_file_contents = vec![
+            "[:latitude longitude temperature]",
+            "20.2:12.3:20",
+            "27.2:12.3:20",
+            "26.2:12.3:20",
+            "24.2:12.3:20",
+            "21.2:12.3:20",
+        ];
 
+        println!("{:?}", expected_file_contents);
+        println!("{:?}", lines);
         assert_eq!(expected_file_contents, lines);
         Ok(())
     }
