@@ -11,7 +11,6 @@ fn main() -> io::Result<()> {
 
     let path_to_unparsed_files = "../data/unparsed_data/";
     let path_to_parsed_files = "../data/parsed_data/";
-
     let files = match list_unparsed_files(&path_to_unparsed_files, &path_to_parsed_files) {
         Some(files) => files,
         None => panic!("No files found."),

@@ -58,29 +58,38 @@ pub fn start_iterating_files(files: Vec<String>) -> io::Result<()> {
     Ok(())
 }
 
-pub fn iterate_file_lines(file: &Path) -> io::Result<Vec<String>> {
-    let lines: Vec<String> = read_file_into_lines(file)?;
+pub fn iterate_file_lines(file: &Path) -> Result<Vec<String>, &str> {
+    let lines: Vec<String> = match read_file_into_lines(file) {
+        Ok(lines) => lines,
+        Err(_) => return Err("Error getting lines from file."),
+    };
+
+    // Lines is an empty vector if file was empty.
+    // We return because if we don't have anything to work with it's useless to continue.
+    if lines.is_empty() {
+        return Err("Error processing file, it's empty.");
+    }
 
     let file_format = format_pattern(&lines[0]);
 
-    if !file_format.is_empty() {
-        let (line_delimiter, line_format) = get_delimiter_and_format_from_file(file_format); // First line contains the format and delimiter so we run it through regex.
-
-        // We want to store file name in the data so we get it here.
-        let file_name = Path::new(&file)
-            .file_name()
-            .expect("Error getting file name")
-            .to_string_lossy();
-
-        let serialized_lines = lines_to_json(line_format, &lines, &line_delimiter, &file_name)?;
-
-        Ok(serialized_lines)
-    } else {
-        return Err(std::io::Error::new(
-            std::io::ErrorKind::Other,
-            "Error reading file",
-        ));
+    // Regex returns an empty string if it didn't find a match.
+    if file_format.is_empty() {
+        return Err("Error processing file, it's empty.");
     }
+
+    let (line_delimiter, line_format) = get_delimiter_and_format_from_file(file_format); // First line contains the format and delimiter so we run it through regex.
+
+    // We want to store file name in the data so we get it here.
+    let file_name = Path::new(&file)
+        .file_name()
+        .expect("Error getting file name")
+        .to_string_lossy();
+
+    let serialized_lines = match lines_to_json(line_format, &lines, &line_delimiter, &file_name) {
+        Ok(json_lines) => json_lines,
+        Err(_) => return Err("Error converting lines to json."),
+    };
+    Ok(serialized_lines)
 }
 
 pub fn read_file_into_lines(filename: impl AsRef<Path>) -> io::Result<Vec<String>> {
