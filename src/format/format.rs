@@ -15,7 +15,7 @@ pub struct Data {
 pub fn format_pattern(format: &str) -> &str {
     let re = Regex::new(r"\[([^]]+)\]").unwrap();
     match re.captures(format) {
-        Some(caps) => caps.get(1).unwrap().as_str(),
+        Some(caps) => caps.get(1).expect("Error getting format").as_str(),
         None => "",
     }
 }
