@@ -37,6 +37,8 @@ pub fn lines_to_json(
 
         let format_container: Vec<&str> = line_format.split_whitespace().collect(); // Splits the format into a container.
 
+        println!("{:?}", parsed_line);
+        println!("{:?}", format_container);
         for index in 0..format_container.len() {
             // if file format is fucked the file format gets replaced with null else it's the normal data
             let column = format_container[index];
@@ -46,10 +48,12 @@ pub fn lines_to_json(
             };
 
             values.x.insert(column.to_string(), data.to_string());
+
             values
                 .x
                 .insert("filename".to_string(), file_name.to_string());
         }
+
         let serialized_line = serde_json::to_string(&values.x)?;
         serialized_lines.push(serialized_line);
     }
