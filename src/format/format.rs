@@ -45,7 +45,7 @@ pub fn lines_to_json(
                 None => "null",
             };
 
-            values.x.insert(column.to_string(), data.to_string());
+            values.x.insert(column.to_string(), data.trim().to_string());
 
             values
                 .x
