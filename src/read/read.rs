@@ -39,10 +39,10 @@ pub fn list_unparsed_files(unparsed_path: &str, parsed_path: &str) -> Option<Vec
     }
 
     // Check if there are any files left to parse
-    if extracted_files.is_empty() {
-        return None;
+    return if extracted_files.is_empty() {
+        None
     } else {
-        return Some(extracted_files);
+        Some(extracted_files)
     }
 }
 
