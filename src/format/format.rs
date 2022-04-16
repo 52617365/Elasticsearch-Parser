@@ -29,6 +29,7 @@ pub fn lines_to_json(
 ) -> Result<Vec<String>> {
     let mut serialized_lines: Vec<String> = Vec::with_capacity(lines.len());
 
+    // First line contains format so we start from first line.
     for line in lines[1..].iter() {
         let mut values = Data { x: BTreeMap::new() };
 
@@ -36,22 +37,22 @@ pub fn lines_to_json(
 
         let format_container: Vec<&str> = line_format.split_whitespace().collect(); // Splits the format into a container.
 
-        // Add line into json string container if serializing did not fail, else do nothing.
-
         for index in 0..format_container.len() {
-            values.x.insert(
-                format_container[index].to_string(),
-                parsed_line[index].to_string(),
-            );
+            // if file format is fucked the file format gets replaced with null else it's the normal data
+            let column = format_container[index];
+            let data = match parsed_line.get(index) {
+                Some(data) => data,
+                None => "null",
+            };
+
+            values.x.insert(column.to_string(), data.to_string());
             values
                 .x
                 .insert("filename".to_string(), file_name.to_string());
         }
-
         let serialized_line = serde_json::to_string(&values.x)?;
         serialized_lines.push(serialized_line);
     }
-    // Parsed keys and parsed line should be the same length so we iterate over container with parsed keys length
 
     Ok(serialized_lines)
 }

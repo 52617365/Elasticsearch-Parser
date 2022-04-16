@@ -1,6 +1,3 @@
-mod format;
-mod read;
-mod write;
 #[cfg(test)]
 mod tests {
     use crate::read::read;
@@ -8,7 +5,6 @@ mod tests {
         io::{self, BufRead, BufReader},
         path::{Path, PathBuf},
     };
-
 
     #[test]
     fn test_extract_unparsed_files() {
