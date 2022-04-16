@@ -1,3 +1,6 @@
+mod format;
+mod read;
+mod write;
 #[cfg(test)]
 mod tests {
     use crate::read::read;
