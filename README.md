@@ -1,8 +1,6 @@
 # Elasticsearch-Parser
 File parser that converts text documents into importable elastic search JSON strings
 
-**WORK IN PROCESS**
-
 Woke up at 3AM last night (4.3.2022) thinking about ideas on how to import my bulk data (3TB) into a nice and fast search engine with little effort whilst learning a new language (Rust) and came up with an idea:
 
 Usually developers have to deal with data that is retained in different formats. This naturally means that you can't treat the files the same way when parsing them. 
