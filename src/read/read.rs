@@ -1,4 +1,3 @@
-use crate::format::format::format_pattern;
 use crate::format::format::lines_to_json;
 use crate::write::write::write_json_strings_to_file;
 use glob::glob;
@@ -43,7 +42,7 @@ pub fn list_unparsed_files(unparsed_path: &str, parsed_path: &str) -> Option<Vec
         None
     } else {
         Some(extracted_files)
-    }
+    };
 }
 
 pub fn start_iterating_files(files: Vec<String>) -> io::Result<()> {
@@ -70,11 +69,11 @@ pub fn iterate_file_lines(file: &Path) -> Result<Vec<String>, &str> {
         return Err("Error processing file, it's empty.");
     }
 
-    let file_format = format_pattern(&lines[0]);
+    let file_format: &str = &lines[0];
 
     // Regex returns an empty string if it didn't find a match.
     if file_format.is_empty() {
-        return Err("Error processing file, it's empty.");
+        return Err("Error getting format, it's not determined.");
     }
 
     let (line_delimiter, line_format) = get_delimiter_and_format_from_file(file_format); // First line contains the format and delimiter so we run it through regex.

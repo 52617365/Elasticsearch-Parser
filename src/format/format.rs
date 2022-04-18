@@ -1,4 +1,3 @@
-use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 use std::collections::BTreeMap;
@@ -6,18 +5,6 @@ use std::collections::BTreeMap;
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Data {
     pub x: BTreeMap<String, String>,
-}
-
-// Reads first line containing format.
-// We use regex because we don't want to run into situations where the program mistakes a random line as a format when it's not.
-// If file does not contain a format we return an empty string.
-#[allow(dead_code)]
-pub fn format_pattern(format: &str) -> &str {
-    let re = Regex::new(r"\[([^]]+)\]").unwrap();
-    match re.captures(format) {
-        Some(caps) => caps.get(1).expect("Error getting format").as_str(),
-        None => "",
-    }
 }
 
 // Gets called for each line in a file and returns a JSON String if everything goes to plan.
