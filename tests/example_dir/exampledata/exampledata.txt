@@ -1,4 +1,4 @@
-[:latitude longitude temperature]
+:latitude longitude temperature
 20.2:12.3:20
 27.2:12.3:20
 26.2:12.3:20

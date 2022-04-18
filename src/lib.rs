@@ -29,19 +29,6 @@ mod tests {
     }
 
     #[test]
-    fn test_regex() {
-        use crate::format::format;
-
-        let expected_unparsed_string = "[:latitude longitude coordinates]";
-
-        let regex_string = format::format_pattern(expected_unparsed_string);
-
-        let expected_string = ":latitude longitude coordinates";
-
-        assert_eq!(regex_string, expected_string);
-    }
-
-    #[test]
     fn test_files_exist() {
         let example1 = Path::new("tests/example_dir/exampledata/exampledata.txt");
         let example2 = Path::new("tests/example_dir/exampledata2/exampledata2.txt");
@@ -110,7 +97,7 @@ mod tests {
         let lines = read::read_file_into_lines(file)?; // Get lines from a file and if it fails to do so, skip to the next file.
 
         let expected_file_contents = vec![
-            "[:latitude longitude temperature]",
+            ":latitude longitude temperature",
             "20.2:12.3:20",
             "27.2:12.3:20",
             "26.2:12.3:20",
