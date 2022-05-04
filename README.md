@@ -8,6 +8,8 @@ This means, that you will spend A LOT of time parsing different data sets.
 
 I'm too lazy to do this myself and I feel like it would be a huge waste of time so this project is an attempt to almost fully automate the process. (Only having to specify the format once)
 
-Elasticsearch-Parser turns a text file with data delimited with a character and turns it into JSON files containing JSON Strings that you can immediately import into elastic search.
+Elasticsearch-Parser turns bulk text files with data delimited with a character and turns it into JSON files containing JSON Strings that you can immediately import into elastic search.
+
+https://youtu.be/XtSrbE-vyF0
 
 
